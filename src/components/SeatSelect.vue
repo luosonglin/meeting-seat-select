@@ -6,7 +6,7 @@
 				@current-change="handleCurrentChange" style="width: 100%">
 				<el-table-column type="index" width="40">
 				</el-table-column>
-				<el-table-column property="name" width="50">
+				<el-table-column property="name" width="70">
 				</el-table-column>
 				<el-table-column property="address" show-overflow-tooltip>
 				</el-table-column>
@@ -56,6 +56,7 @@
 						<div class="seatChooseInfor">
 							<div></div>
 							<p>共有座位{{seatRow * seatCol}}个，当前已选座{{num}}个</p>
+							<p>选座结果：{{JSON.stringify(this.selectTicket)}}</p>
 						</div>
 					</div>
 				</div>
@@ -130,22 +131,22 @@
 		data() {
 			return {
 				tableData: [{
-					name: 'XXX',
+					name: '罗某某',
 					address: 'XXX单位-XXX岗位'
 				}, {
-					name: 'XXX',
+					name: '松某某',
+					address: 'XXX单位-产品'
+				}, {
+					name: '林某某',
+					address: 'XXX单位-经理'
+				}, {
+					name: '罗哈哈',
 					address: 'XXX单位-XXX岗位'
 				}, {
-					name: 'XXX',
+					name: '罗嗯嗯',
 					address: 'XXX单位-XXX岗位'
 				}, {
-					name: 'XXX',
-					address: 'XXX单位-XXX岗位'
-				}, {
-					name: 'XXX',
-					address: 'XXX单位-XXX岗位'
-				}, {
-					name: 'XXX',
+					name: '罗XX',
 					address: 'XXX单位-XXX岗位'
 				}, {
 					name: 'XXX',
@@ -163,8 +164,8 @@
 				dialogVisible: false,
 				seatRowInput: 0,
 				seatColInput: 0,
-				seatRow: 10,
-				seatCol: 1s0,
+				seatRow: 0,
+				seatCol: 0,
 				desk: '0',
 				radio: '1',
 				seatArray: [],
@@ -174,7 +175,9 @@
 				selectTicket: [],
 				ok: 0,
 				id: null,
-				selected: []
+				selected: [],
+				
+				tempPerson:{},
 
 			}
 		},
@@ -183,13 +186,14 @@
 		},
 		methods: {
 			handleCurrentChange(val) {
-				console.log(val)
+				this.tempPerson = val
+				console.log(this.tempPerson)
 			},
 			confirmMeetingRoom() {
 				this.dialogVisible = false
 				this.seatRow = Number(this.seatRowInput)
 				this.seatCol = Number(this.seatColInput)
-				console.log('TAG', this.seatRow+' '+this.seatCol)
+				console.log('TAG', this.seatRow + ' ' + this.seatCol)
 				this.initSeatArray();
 			},
 			//初始座位数组
@@ -203,43 +207,45 @@
 
 			handleChooseSeat(x, y) {
 				this.ok++;
-				console.log(this.num);
 				let seatValue = this.seatArray[x][y];
 				// let newArray = this.seatArray;
-				if (seatValue === 1) {	// 1  已选座位
+				if (seatValue === 1) { // 1  已选座位
 					// newArray[x][y]=0;
 					let onum = this.selectTicket.findIndex(item => item.row == x + 1 && item.col == y + 1);
 					this.remove(onum);
-
-				} else if (seatValue === 0) {	// 0  可选座位
+					
+				} else if (seatValue === 0) { // 0  可选座位
 					this.num++;
 					// newArray[x][y]=1;
 					this.selectTicket.push({
 						row: x + 1,
 						col: y + 1,
-						id: this.ok
+						id: this.ok,
+						person: this.tempPerson.name,
+						seat: (x+1) + '排' + (y+1) + '座'
 					});
-
-					console.log(this.selectTicket)
 				}
 				// this.seatArray = newArray.slice(); 
-				
+
 				//思考 -1  无座位，桌子/过道
+				
+				console.log('选座json',JSON.stringify(this.selectTicket))
+				
 			},
-			remove: function(onum) {
+			remove(onum) {
 				this.selectTicket.splice(onum, 1);
 				this.num--;
 			},
 		},
 		watch: {
-			selectTicket: function() {
+			selectTicket() {
 				this.initSeatArray();
 				let newArray = this.seatArray;
 				this.selectTicket.forEach(item => {
 					newArray[item.row - 1][item.col - 1] = 1;
 				})
 			},
-			selected: function() {
+			selected() {
 				this.initSeatArray();
 			}
 		},
